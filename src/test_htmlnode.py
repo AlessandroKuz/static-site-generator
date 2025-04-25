@@ -1,0 +1,93 @@
+import unittest
+
+from htmlnode import HTMLNode
+
+
+class TestHTMLNode(unittest.TestCase):
+    """
+    da testare
+    to_html -> raises error
+    props_to_html
+    """
+    def test_url_optional(self):
+        node = HTMLNode()
+        self.assertIsNone(node.tag)
+        self.assertIsNone(node.value)
+        self.assertIsNone(node.children)
+        self.assertIsNone(node.props)
+
+    def test_type_checks(self):
+        # Test valid types
+        h1 = HTMLNode('h1', 'My heading')
+        p = HTMLNode("p", 'lorem ipsum')
+        link = HTMLNode(tag="a", props={'href': 'https://boot.dev'})
+        HTMLNode("body", children=[h1, p, link])
+
+        # Test invalid tag type
+        with self.assertRaises(TypeError) as cm:
+            HTMLNode(tag=123)
+        self.assertEqual(str(cm.exception), "tag must be a string")
+
+        # Test invalid value type
+        with self.assertRaises(TypeError) as cm:
+            HTMLNode(value=123)
+        self.assertEqual(str(cm.exception), "value must be a string")
+
+        # Test invalid children type
+        with self.assertRaises(TypeError) as cm:
+            HTMLNode(children=1)
+        self.assertEqual(str(cm.exception), "children must be a list")
+
+        # Test invalid props type
+        with self.assertRaises(TypeError) as cm:
+            HTMLNode(props=1)
+        self.assertEqual(str(cm.exception), "props must be a dictionary")
+
+        # Test edge cases
+        with self.assertRaises(TypeError) as cm:
+            HTMLNode(1, 2, 3, 4)  # test all invalid types
+        # The first error encountered (tag) should be raised
+        self.assertEqual(str(cm.exception), "tag must be a string")
+
+    def test_eq(self):
+        node = HTMLNode("p", 'lorem ipsum')
+        node2 = HTMLNode("p", 'lorem ipsum')
+        self.assertEqual(node, node2)
+
+    def test_eq_false(self):
+        node = HTMLNode("p", 'lorem ipsum', children=[])
+        node2 = HTMLNode("p", 'lorem ipsum')
+        self.assertNotEqual(node, node2)
+
+        node = HTMLNode("p", 'lorem ipsum', children=[])
+        node2 = HTMLNode("body", children=[HTMLNode("p", 'lorem ipsum2')])
+        self.assertNotEqual(node, node2)
+
+        node = HTMLNode("p", 'lorem ipsum', children=[])
+        node2 = HTMLNode("a", props={'href': 'https://boot.dev'})
+        self.assertNotEqual(node, node2)
+
+    def test_repr(self):
+        tag = "p"
+        value = "lorem ipsum"
+        node = HTMLNode(tag=tag, value=value)
+        self.assertEqual(repr(node), f'HTMLNode({tag}, {value}, {None}, {None})')
+
+        body_tag = "body"
+        link_node = HTMLNode(tag='a', props={'href': 'https://boot.dev'})
+        children = [node, link_node]
+        body_node = HTMLNode(tag=body_tag, children=children)
+        self.assertEqual(repr(body_node), f'HTMLNode({body_tag}, {None}, {children}, {None})')
+
+    def test_to_html(self):
+        self.assertRaises(NotImplementedError, HTMLNode.to_html, None)
+
+    def test_props_to_html(self):
+        props = {"rel": "stylesheet", "type": "text/css", "href": "styles.css"}
+        expected_string = ' rel="stylesheet" type="text/css" href="styles.css"'
+        node = HTMLNode("link", props=props)
+        self.assertEqual(expected_string, node.props_to_html())
+
+
+if __name__ == "__main__":
+    unittest.main()
