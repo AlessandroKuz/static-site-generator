@@ -32,3 +32,22 @@ class HTMLNode:
 
     def __repr__(self) -> str:
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
+
+
+class LeafNode(HTMLNode):
+    def __init__(self, value: str, tag: str = None, props: dict[str, str] = None):
+        if tag is not None and not isinstance(tag, str):
+            raise TypeError("tag must be string")
+        if props is not None and not isinstance(props, dict):
+            raise TypeError("props must be dictionary")
+        if not isinstance(value, str):
+            raise TypeError("value must be string")
+        children = []
+        super().__init__(tag, value, children, props)
+
+    def to_html(self) -> str:
+        if not self.value:
+            raise ValueError("value can't be empty. All leaf nodes must have a value.")
+        if self.tag is None:
+            return self.value
+        return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
