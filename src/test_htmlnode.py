@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode
+from htmlnode import HTMLNode, LeafNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -149,6 +149,20 @@ class TestHTMLNode(unittest.TestCase):
         )
         expected_string = ''
         self.assertEqual(expected_string, node.props_to_html())
+
+    def test_leaf_to_html_p(self):
+        node = LeafNode(tag='p', value='Hello World')
+        html = node.to_html()
+        self.assertEqual('<p>Hello World</p>', html)
+
+    def test_leaf_to_html_text(self):
+        node = LeafNode(value='Hello World')
+        html = node.to_html()
+        self.assertEqual('Hello World', html)
+
+    def test_leaf_to_html_parent_node(self):
+        with self.assertRaises(TypeError):
+            LeafNode(tag='body', children=[LeafNode(value='Hello World')])
 
 
 if __name__ == "__main__":
