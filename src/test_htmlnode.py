@@ -4,11 +4,28 @@ from htmlnode import HTMLNode
 
 
 class TestHTMLNode(unittest.TestCase):
-    """
-    da testare
-    to_html -> raises error
-    props_to_html
-    """
+    def test_values(self):
+        node = HTMLNode(
+            "div",
+            "I wish I could read",
+        )
+        self.assertEqual(
+            node.tag,
+            "div",
+        )
+        self.assertEqual(
+            node.value,
+            "I wish I could read",
+        )
+        self.assertEqual(
+            node.children,
+            None,
+        )
+        self.assertEqual(
+            node.props,
+            None,
+        )
+
     def test_url_optional(self):
         node = HTMLNode()
         self.assertIsNone(node.tag)
@@ -79,6 +96,17 @@ class TestHTMLNode(unittest.TestCase):
         body_node = HTMLNode(tag=body_tag, children=children)
         self.assertEqual(repr(body_node), f'HTMLNode({body_tag}, {None}, {children}, {None})')
 
+        node = HTMLNode(
+            "p",
+            "What a strange world",
+            None,
+            {"class": "primary"},
+        )
+        self.assertEqual(
+            repr(node),
+            "HTMLNode(p, What a strange world, None, {'class': 'primary'})",
+        )
+
     def test_to_html(self):
         self.assertRaises(NotImplementedError, HTMLNode.to_html, None)
 
@@ -87,6 +115,17 @@ class TestHTMLNode(unittest.TestCase):
         expected_string = ' rel="stylesheet" type="text/css" href="styles.css"'
         node = HTMLNode("link", props=props)
         self.assertEqual(expected_string, node.props_to_html())
+
+        node = HTMLNode(
+            "div",
+            "Hello, world!",
+            None,
+            {"class": "greeting", "href": "https://boot.dev"},
+        )
+        self.assertEqual(
+            node.props_to_html(),
+            ' class="greeting" href="https://boot.dev"',
+        )
 
 
 if __name__ == "__main__":
