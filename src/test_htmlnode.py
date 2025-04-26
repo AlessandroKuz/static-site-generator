@@ -127,6 +127,29 @@ class TestHTMLNode(unittest.TestCase):
             ' class="greeting" href="https://boot.dev"',
         )
 
+        node = HTMLNode(
+            "p",
+            "Hello, world!",
+        )
+        expected_string = ''
+        self.assertEqual(expected_string, node.props_to_html())
+
+        node = HTMLNode(
+            "p",
+            "Hello, world!",
+            props={'ciao': '', '': 'test'},
+        )
+        expected_string = ''
+        self.assertEqual(expected_string, node.props_to_html())
+
+        node = HTMLNode(
+            "p",
+            "Hello, world!",
+            props={'': ''},
+        )
+        expected_string = ''
+        self.assertEqual(expected_string, node.props_to_html())
+
 
 if __name__ == "__main__":
     unittest.main()
