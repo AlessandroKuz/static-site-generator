@@ -156,13 +156,24 @@ class TestHTMLNode(unittest.TestCase):
         self.assertEqual('<p>Hello World</p>', html)
 
     def test_leaf_to_html_text(self):
-        node = LeafNode(value='Hello World')
+        node = LeafNode(tag=None, value='Hello World')
         html = node.to_html()
         self.assertEqual('Hello World', html)
 
     def test_leaf_to_html_parent_node(self):
         with self.assertRaises(TypeError):
             LeafNode(tag='body', children=[LeafNode(value='Hello World')])
+
+    def test_invalid_types_inheritance(self):
+        with self.assertRaises(TypeError) as cm:
+            LeafNode(tag=123, value='Hello World')
+        self.assertEqual(str(cm.exception), "tag must be a string")
+        with self.assertRaises(TypeError) as cm:
+            LeafNode(value=123, tag=None)
+        self.assertEqual(str(cm.exception), "value must be a string")
+        with self.assertRaises(TypeError) as cm:
+            LeafNode(props=123, tag=None, value='Hello World')
+        self.assertEqual(str(cm.exception), "props must be a dictionary")
 
 
 if __name__ == "__main__":
