@@ -1,5 +1,9 @@
 class HTMLNode:
-    def __init__(self, tag: str = None, value: str = None, children: list["HTMLNode"] = None, props: dict[str, str] = None) -> None:
+    def __init__(
+            self, tag: str | None = None,
+            value: str | None = None,
+            children: list["HTMLNode"] | None = None,
+            props: dict[str, str] | None = None) -> None:
         if tag is not None and not isinstance(tag, str):
             raise TypeError("tag must be a string")
         if value is not None and not isinstance(value, str):
@@ -35,15 +39,8 @@ class HTMLNode:
 
 
 class LeafNode(HTMLNode):
-    def __init__(self, value: str, tag: str = None, props: dict[str, str] = None):
-        if tag is not None and not isinstance(tag, str):
-            raise TypeError("tag must be string")
-        if props is not None and not isinstance(props, dict):
-            raise TypeError("props must be dictionary")
-        if not isinstance(value, str):
-            raise TypeError("value must be string")
-        children = []
-        super().__init__(tag, value, children, props)
+    def __init__(self, tag: str | None, value: str, props: dict[str, str] | None = None) -> None:
+        super().__init__(tag, value, None, props)
 
     def to_html(self) -> str:
         if not self.value:

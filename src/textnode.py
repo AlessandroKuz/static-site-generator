@@ -10,7 +10,7 @@ class TextType(Enum):
     IMAGE = 'image'
 
 class TextNode:
-    def __init__(self, text: str, text_type: TextType, url: str = None) -> None:
+    def __init__(self, text: str, text_type: TextType, url: str | None = None) -> None:
         if not isinstance(text, str):
             raise TypeError('text must be a string')
         if not isinstance(text_type, TextType):
