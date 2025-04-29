@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -190,6 +190,122 @@ class TestHTMLNode(unittest.TestCase):
         node = LeafNode(tag='p', value='Hello World')
         node2 = LeafNode(tag='p', value='Hello World')
         self.assertEqual(node, node2)
+
+    def test_parent_node_repr(self):
+        tag = 'body'
+        node1 = LeafNode(tag='p', value='Hello World')
+        node2 = LeafNode(tag='bold', value='Hi')
+        node3 = LeafNode(tag=None, value='lorem ipsum')
+        children = [node1, node2, node3]
+        parent_node = ParentNode(tag=tag, children=children)
+        expecting_string = f"ParentNode({tag}, {children}, None)"
+        self.assertEqual(repr(parent_node), expecting_string)
+
+    def test_parent_node_eq_inheritance(self):
+        tag = 'body'
+        node1 = LeafNode(tag='p', value='Hello World')
+        children = [node1]
+        node = ParentNode(tag=tag, children=children)
+        node2 = ParentNode(tag=tag, children=children)
+        self.assertEqual(node, node2)
+
+    def test_parent_node_invalid_types_inheritance(self):
+        with self.assertRaises(TypeError) as cm:
+            ParentNode(tag=123, children=[LeafNode(tag=None, value='Hello World')])
+        self.assertEqual(str(cm.exception), "tag must be a string")
+        with self.assertRaises(TypeError) as cm:
+            ParentNode(children=123, tag='body')
+        self.assertEqual(str(cm.exception), "children must be a list")
+        with self.assertRaises(TypeError) as cm:
+            ParentNode(props=123, tag='body', children=[LeafNode(tag=None,value='Hello World')])
+        self.assertEqual(str(cm.exception), "props must be a dictionary")
+
+    def test_parent_node_to_html_no_tag(self):
+        node1 = LeafNode(tag="p", value="Hello World")
+        node2 = LeafNode(tag="bold", value="Hi")
+        node3 = LeafNode(tag=None, value="lorem ipsum")
+        children = [node1, node2, node3]
+
+        parent_node = ParentNode(tag=None, children=children)
+        with self.assertRaises(ValueError) as cm:
+            parent_node.to_html()
+        self.assertEqual(str(cm.exception), "tag value cannot be None, empty or missing")
+
+        parent_node = ParentNode(tag="", children=children)
+        with self.assertRaises(ValueError) as cm:
+            parent_node.to_html()
+        self.assertEqual(str(cm.exception), "tag value cannot be None, empty or missing")
+
+    def test_parent_node_to_html_no_children(self):
+        node = ParentNode(tag="body", children=None)
+        with self.assertRaises(ValueError) as cm:
+            node.to_html()
+        self.assertEqual(str(cm.exception), "children value cannot be None, empty or missing")
+
+        ParentNode(tag="body", children=[])
+        with self.assertRaises(ValueError) as cm:
+            node.to_html()
+        self.assertEqual(str(cm.exception), "children value cannot be None, empty or missing")
+
+    def test_parent_node_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual("<div><span>child</span></div>", parent_node.to_html())
+
+    def test_parent_node_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    def test_parent_node_to_html_with_nested_children(self):
+        great_grandchild_node = LeafNode("b", "grandchild")
+        grandchild_node = ParentNode("p", [great_grandchild_node])
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><p><b>grandchild</b></p></span></div>",
+        )
+
+    def test_parent_node_to_html_with_multiple_children_and_grandchildren(self):
+        grandchild_node1 = LeafNode("b", "grandchild1")
+        grandchild_node2 = LeafNode("i", "grandchild2")
+        grandchild_node3 = LeafNode("code", "grandchild3")
+        child_node1 = ParentNode("span", [grandchild_node1, grandchild_node2, grandchild_node3])
+
+        grandchild_node4 = LeafNode('p', 'sample text')
+        grandchild_node5 = LeafNode('a', 'sample link', {'href': 'https://boot.dev'})
+        # TODO: Think of a way to handle self-closing elements
+        grandchild_node6 = LeafNode(
+            tag='img',
+            value='',
+            props={'src': 'https://boot.dev/images/sample_image.txt', 'alt': 'a sample image'},
+        )
+        grandchild_node7 = LeafNode(None, 'other sample text')
+        child_node2 = ParentNode("div", [grandchild_node4, grandchild_node5, grandchild_node6, grandchild_node7])
+        child_node3 = LeafNode(tag=None, value='raw text')
+        parent_node = ParentNode("div", [child_node1, child_node2, child_node3])
+        expecting_string = (
+            '<div>'
+                '<span>'
+                    '<b>grandchild1</b>'
+                    '<i>grandchild2</i>'
+                    '<code>grandchild3</code>'
+                '</span>'
+                '<div>'
+                    '<p>sample text</p>'
+                    '<a href="https://boot.dev">sample link</a>'
+                    '<img src="https://boot.dev/images/sample_image.txt" alt="a sample image"></img>'
+                    'other sample text'
+                '</div>'
+                'raw text'
+            '</div>'
+        )
+        self.assertEqual(parent_node.to_html(), expecting_string)
 
 
 if __name__ == "__main__":
