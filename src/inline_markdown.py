@@ -44,13 +44,56 @@ def split_nodes_delimiter(old_nodes: list, delimiter: str, text_type: TextType) 
     return new_nodes
 
 def extract_markdown_images(text: str) -> list[tuple[str, str]]:
-    # pattern: str = r'!\[([\w+ ]+)\]\(([\w+ :\/\/\.]+)\)'
     pattern: str = r'!\[([^\[\]]*)\]\(([^\(\)]*)\)'
     result: list[tuple[str, str]] = re.findall(pattern, text)
     return result
 
 def extract_markdown_links(text: str) -> list[tuple[str, str]]:
-    # pattern: str = r"\[([\w+ ]+)\]\(([\w+ :\/\/\.@]+)\)"
     pattern: str = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
     result: list[tuple[str, str]] = re.findall(pattern, text)
     return result
+
+def process_split(old_nodes: list, node_type: str) -> list[TextNode]:
+    new_nodes = []
+    match node_type:
+        case "image":
+            text_type = TextType.IMAGE
+            exception_msg = "invalid markdown, image section not closed"
+            extraction_func = extract_markdown_images
+        case "link":
+            text_type = TextType.LINK
+            exception_msg = "invalid markdown, link section not closed"
+            extraction_func = extract_markdown_links
+        case _:
+            raise ValueError("invalid node type")
+
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            new_nodes.append(old_node)
+            continue
+
+        original_text = old_node.text
+        extraction_tuple = extraction_func(original_text)
+        if not extraction_tuple:
+            new_nodes.append(old_node)
+            continue
+
+        for extraction_alt, extraction_link in extraction_tuple:
+            split_pattern = f'{"!" if node_type == "image" else ""}[{extraction_alt}]({extraction_link})'
+            sections = original_text.split(split_pattern, 1)
+            if len(sections) != 2:
+                raise ValueError(exception_msg)
+            if sections[0]:
+                new_nodes.append(TextNode(sections[0], old_node.text_type))
+            new_nodes.append(TextNode(extraction_alt, text_type, extraction_link))
+            original_text = sections[1]
+        if original_text:
+            new_nodes.append(TextNode(original_text, TextType.TEXT))
+
+    return new_nodes
+
+def split_nodes_image(old_nodes: list) -> list[TextNode]:
+    return process_split(old_nodes, "image")
+
+def split_nodes_link(old_nodes: list) -> list[TextNode]:
+    return process_split(old_nodes, "link")
