@@ -54,6 +54,8 @@ def extract_markdown_links(text: str) -> list[tuple[str, str]]:
     return result
 
 def process_split(old_nodes: list, node_type: str) -> list[TextNode]:
+    if not isinstance(old_nodes, list):
+        raise ValueError("provided old_nodes is not of type list")
     new_nodes = []
     match node_type:
         case "image":
@@ -68,6 +70,8 @@ def process_split(old_nodes: list, node_type: str) -> list[TextNode]:
             raise ValueError("invalid node type")
 
     for old_node in old_nodes:
+        if not isinstance(old_node, TextNode):
+            raise ValueError(f"an old_nodes list element is not of valid type (TextNode), instead got {type(old_node)}")
         if old_node.text_type != TextType.TEXT:
             new_nodes.append(old_node)
             continue
