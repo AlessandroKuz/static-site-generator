@@ -6,6 +6,7 @@ from inline_markdown import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
+    text_to_text_nodes
 )
 from textnode import TextNode, TextType
 
@@ -117,6 +118,7 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         expected_result = [TextNode("This is text with a ", TextType.TEXT), TextNode("code block", TextType.CODE), TextNode(" word and a new ", TextType.TEXT), TextNode("code block", TextType.CODE), TextNode(" word", TextType.TEXT), TextNode("", TextType.CODE), TextNode("", TextType.TEXT)]
         self.assertEqual(result, expected_result)
 
+
 class TestExtractMarkdownFunctions(unittest.TestCase):
     def test_images_extraction(self):
         text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
@@ -129,6 +131,7 @@ class TestExtractMarkdownFunctions(unittest.TestCase):
         links = extract_markdown_links(text)
         expected_result = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
         self.assertEqual(expected_result, links)
+
 
 class TestSplitNodesImage(unittest.TestCase):
     def test_split_images(self):
@@ -208,6 +211,7 @@ class TestSplitNodesImage(unittest.TestCase):
         node = TextNode("here is a simple text node", TextType.TEXT)
         new_nodes = split_nodes_image([node])
         self.assertListEqual([TextNode("here is a simple text node", TextType.TEXT)], new_nodes)
+
 
 class TestSplitNodesLink(unittest.TestCase):
     def test_split_links(self):
@@ -318,6 +322,84 @@ class TestSplitNodesLink(unittest.TestCase):
         node = TextNode("here is a simple text node", TextType.TEXT)
         new_nodes = split_nodes_link([node])
         self.assertListEqual([TextNode("here is a simple text node", TextType.TEXT)], new_nodes)
+
+
+class TestTextToTextNode(unittest.TestCase):
+    def test_multiple_node_types(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        expected_result = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ]
+        result = text_to_text_nodes(text)
+        self.assertEqual(result, expected_result)
+
+    def test_nested_nodes(self):
+        text = "This is **text with _nested italic_** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        expected_result = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text with _nested italic_", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ]
+        result = text_to_text_nodes(text)
+        self.assertEqual(result, expected_result)
+
+    def test_nested_nodes(self):
+        """
+        KEEP IN MIND: the following function is EXPECTED to FAIL
+        when reworking the way that TextNodes are split
+        - (current/old logic depends on delimiter order inside of ALLOWED_DELIMITERS constant)
+        """
+        text = "This is _**text with nested bold**_ with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        # expected_result = [
+        #     TextNode("This is _", TextType.TEXT),
+        #     TextNode("text with nested bold", TextType.ITALIC),
+        #     TextNode("_ with an ", TextType.TEXT),
+        #     TextNode("italic", TextType.ITALIC),
+        #     TextNode(" word and a ", TextType.TEXT),
+        #     TextNode("code block", TextType.CODE),
+        #     TextNode(" and an ", TextType.TEXT),
+        #     TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+        #     TextNode(" and a ", TextType.TEXT),
+        #     TextNode("link", TextType.LINK, "https://boot.dev"),
+        # ]
+        # result = text_to_text_nodes(text)
+        # self.assertEqual(result, expected_result)
+
+        with self.assertRaises(ValueError) as cm:
+            text_to_text_nodes(text)
+        self.assertEqual(str(cm.exception), 'provided old_nodes contains an invalid Markdown syntax, the number of "_" delimiters is odd.')
+        # An error get raised because the following TextNodes have an odd number of "_".
+        #     TextNode("This is _", TextType.TEXT),
+        #     TextNode("_ with an ", TextType.TEXT),
+
+    def test_empty_text(self):
+        text = ""
+        expected_result = []
+        result = text_to_text_nodes(text)
+        self.assertEqual(result, expected_result)
+
+    def test_invalid_text_type(self):
+        text = 123
+        with self.assertRaises(ValueError) as cm:
+            text_to_text_nodes(text)
+        self.assertEqual(str(cm.exception), f"provide text has invalid type, found {type(text)} instead of str")
+
 
 if __name__ == '__main__':
     unittest.main()
