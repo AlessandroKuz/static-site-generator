@@ -43,3 +43,7 @@ the [related boot.dev course](https://www.boot.dev/courses/build-static-site-gen
 
 - [ ] Fix: the delimiters order inside of ALLOWED_DELIMITERS matters to the way that inline elements are split into nodes and their type.
     - This needs a rework, especially in the future to allow nested blocks no matter the order
+
+- [ ] Update the docs to specify in detail what types are supported, which are currently not supported and so on
+
+- [ ] Add a mkdocs section for reference
