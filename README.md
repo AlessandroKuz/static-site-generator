@@ -5,6 +5,14 @@ The following is a project that enables the user to convert Markdown documents i
 The project is developed in python following
 the [related boot.dev course](https://www.boot.dev/courses/build-static-site-generator-python).
 
+## Execution
+
+To run the program execute `main.py`.
+
+## Tests
+
+To run the tests make sure you have python installed, then, on Linux and MacOS, run `./test.sh`.
+
 ## Future Roadmap
 
 - [ ] add support for self-closing tags (i.e., `img`, `hr`)
