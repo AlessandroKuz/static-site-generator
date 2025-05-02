@@ -40,3 +40,6 @@ the [related boot.dev course](https://www.boot.dev/courses/build-static-site-gen
 - [ ] add support for nested "LeafNodes" (i.e., an `italic` tag tag withing a `bold` one or viceversa) -
     - recursive?
     - 1/2 level(s) deep?
+
+- [ ] Fix: the delimiters order inside of ALLOWED_DELIMITERS matters to the way that inline elements are split into nodes and their type.
+    - This needs a rework, especially in the future to allow nested blocks no matter the order
