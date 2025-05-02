@@ -3,6 +3,8 @@ import re
 from textnode import TextNode, TextType
 
 
+ALLOWED_DELIMITERS = {'**': TextType.BOLD, '*': TextType.ITALIC, '_': TextType.ITALIC, '```': TextType.CODE, '`': TextType.CODE}
+
 def split_nodes_delimiter(old_nodes: list, delimiter: str, text_type: TextType) -> list[TextNode | None]:
     """
     At the moment the function does not support nested inline elements.
@@ -15,7 +17,7 @@ def split_nodes_delimiter(old_nodes: list, delimiter: str, text_type: TextType) 
     """
     new_nodes = []
 
-    if delimiter not in ['**', '*', '_', '```', '`']:
+    if delimiter not in ALLOWED_DELIMITERS.keys():
         raise ValueError(f'provided delimiter "{delimiter}" is not supported.')
 
     for old_node in old_nodes:
@@ -101,3 +103,23 @@ def split_nodes_image(old_nodes: list) -> list[TextNode]:
 
 def split_nodes_link(old_nodes: list) -> list[TextNode]:
     return process_split(old_nodes, "link")
+
+def text_to_text_nodes(text: str) -> list[TextNode]:
+    if not isinstance(text, str):
+        raise ValueError(f"provide text has invalid type, found {type(text)} instead of str")
+    if not text:
+        return []
+    nodes = [TextNode(text=text, text_type=TextType.TEXT)]
+    images_are_present = len(extract_markdown_images(text)) > 0
+    links_are_present = len(extract_markdown_links(text)) > 0
+
+    if images_are_present:
+        nodes = split_nodes_image(nodes)
+
+    if links_are_present:
+        nodes = split_nodes_link(nodes)
+    
+    for delimiter, text_type in ALLOWED_DELIMITERS.items():
+        nodes = split_nodes_delimiter(nodes, delimiter, text_type)
+    
+    return nodes
