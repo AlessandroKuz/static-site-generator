@@ -174,6 +174,41 @@ class TestSplitNodesImage(unittest.TestCase):
             new_nodes,
         )
 
+    def test_invalid_input_provided(self):
+        node = TextNode(
+            "![image link](https://www.example.com/image.png)",
+            TextType.TEXT,
+        )
+        with self.assertRaises(ValueError) as cm:
+            split_nodes_image(node)
+        self.assertEqual(str(cm.exception), "provided old_nodes is not of type list")
+
+        invalid_list = ['hello', 123]
+        with self.assertRaises(ValueError) as cm:
+            split_nodes_image(invalid_list)
+        self.assertEqual(str(cm.exception), f"an old_nodes list element is not of valid type (TextNode), instead got {type(invalid_list[0])}")
+
+    def test_non_text_nested_nodes(self):
+        node = TextNode(
+            "here is how a markdown link should look like: ![link](https://www.example.com/image.png)",
+            TextType.CODE,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode(
+                    "here is how a markdown link should look like: ![link](https://www.example.com/image.png)",
+                    TextType.CODE,
+                )
+            ],
+            new_nodes,
+        )
+
+    def test_imageless_node(self):
+        node = TextNode("here is a simple text node", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual([TextNode("here is a simple text node", TextType.TEXT)], new_nodes)
+
 class TestSplitNodesLink(unittest.TestCase):
     def test_split_links(self):
         node = TextNode( "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
@@ -249,9 +284,40 @@ class TestSplitNodesLink(unittest.TestCase):
             new_nodes,
         )
 
+    def test_invalid_input_provided(self):
+        node = TextNode(
+            "[link](https://www.example.com/)",
+            TextType.TEXT,
+        )
+        with self.assertRaises(ValueError) as cm:
+            split_nodes_link(node)
+        self.assertEqual(str(cm.exception), "provided old_nodes is not of type list")
 
-# TODO: ADD more comprehensive tests to link and images split
+        invalid_list = ['hello', 123]
+        with self.assertRaises(ValueError) as cm:
+            split_nodes_link(invalid_list)
+        self.assertEqual(str(cm.exception), f"an old_nodes list element is not of valid type (TextNode), instead got {type(invalid_list[0])}")
 
+    def test_non_text_nested_nodes(self):
+        node = TextNode(
+            "here is how a markdown link should look like: [link](https://www.example.com/)",
+            TextType.CODE,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode(
+                    "here is how a markdown link should look like: [link](https://www.example.com/)",
+                    TextType.CODE,
+                )
+            ],
+            new_nodes,
+        )
+
+    def test_linkless_node(self):
+        node = TextNode("here is a simple text node", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual([TextNode("here is a simple text node", TextType.TEXT)], new_nodes)
 
 if __name__ == '__main__':
     unittest.main()
