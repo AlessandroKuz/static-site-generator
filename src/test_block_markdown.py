@@ -1,6 +1,6 @@
 import unittest
 
-from block_markdown import markdown_to_blocks
+from block_markdown import block_to_block_type, BlockType, markdown_to_blocks
 
 
 class TestMarkdownToBlocks(unittest.TestCase):
@@ -149,6 +149,158 @@ This is the same paragraph on a new line
                 "Block 2 with > special & characters"
             ]
         )
+
+
+class TestMarkdownBlockToBlockType(unittest.TestCase):
+    def test_headings(self):
+        md = '# h1 heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.HEADING)
+
+        md = '## h2 heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.HEADING)
+
+        md = '### h3 heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.HEADING)
+
+        md = '#### h4 heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.HEADING)
+
+        md = '##### h5 heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.HEADING)
+
+        md = '###### h6 heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.HEADING)
+
+    def test_invalid_headings(self):
+        md = '####### h7 invalid heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)  # Since its not a valid heading it will be treated as a simple paragrapsh
+
+        md = 'not a #### h4 heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)  # Since its not a valid heading it will be treated as a simple paragrapsh
+
+        md = 'random text'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = 'random text\n# h1 heading'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+    def test_code(self):
+        md = '```\nrandom code block```'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.CODE)
+
+        md = '```python\nprint("Hello World!")\n```'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.CODE)
+
+    def test_invalid_code(self):
+        md = '```random code block```'  # only one line
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = '``invalid code block``'  # incorrect number of ticks
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = 'sample text ```invalid code block```'  # doesnt start with 3 ticks
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = '```invalid code block``` other text'  # doesnt end with 3 ticks
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+    def test_quote(self):
+        md = '> This is a simple quote'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.QUOTE)
+
+        md = '> This is a quote\n> with multiple lines'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.QUOTE)
+
+        md = '> This is a quote\n> with multiple lines\n> and a third line\n> and a fourth line for good measure'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.QUOTE)
+
+    def test_invalid_quote(self):
+        md = '> This is a quote\n> with multiple lines\n> and a third line\n> and a fourth line for good measure\nThis is not a quote'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = 'This is not a quote'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+    def test_ordered_list(self):
+        md = '1. This is the first item'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.ORDERED_LIST)
+
+        md = '1. This is the first item\n2. This is the second item\n3. This is the third item'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.ORDERED_LIST)
+
+    def test_invalid_ordered_list(self):
+        md = '1. This is the first item\n3. This is the second item\nthis is a random text'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = '1. This is the first item\nthis is a random text\n2. This is the second item\n3. This is the third item'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+    def test_invalid_ordered_list2(self):
+        """The following case is supposed to be VALID but it is not supported by the current implementation"""
+        md = '0. This is the first item\n1. This is the second item\n2. This is the third item\nThis is not a list'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)  # Since ordered lists start with 1. and go up by one, this is not a valid ordered list
+
+    def test_unordered_list(self):
+        md = '- This is the first item'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.UNORDERED_LIST)
+
+        md = '- This is the first item\n- This is the second item\n- This is the third item'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.UNORDERED_LIST)
+
+    def test_invalid_unordered_list(self):
+        md = '- This is the first item\n- This is the second item\nthis is a random text'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = '- This is the first item\nThis is random text\n- This is the second item\n- This is the third item'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = 'This is not a list'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+    def test_paragraph(self):
+        md = 'This is a simple paragraph'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = 'This is a paragraph\nwith multiple lines'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+
+        md = 'This is a paragraph\nwith multiple lines\nand a third line'
+        result = block_to_block_type(md)
+        self.assertEqual(result, BlockType.PARAGRAPH)
+        # a test_invalid_paragraph doesnt exist because its supposed to be the default case
 
 
 if __name__ == "__main__":
