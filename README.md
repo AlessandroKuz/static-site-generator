@@ -13,9 +13,15 @@ To run the program execute `main.py`.
 
 To run the tests make sure you have python installed, then, on Linux and MacOS, run `./test.sh`.
 
+## Markdown reference
+
+- [Simple Markdown Guide](https://www.markdownguide.org/cheat-sheet/)
+- [Basic Syntax and best practices](https://www.markdownguide.org/basic-syntax/)
+- [Markdown book](https://www.markdownguide.org/book/)j
+
 ## Future Roadmap
 
-- [ ] add support for self-closing tags (i.e., `img`, `hr`)
+- [ ] Add support for self-closing tags (i.e., `img`, `hr`)
 
 [//]: # (    <area> - Specifies clickable areas in image maps)
 
@@ -45,13 +51,21 @@ To run the tests make sure you have python installed, then, on Linux and MacOS, 
 
 [//]: # (    <wbr> - Suggests potential line break points)
 
-- [ ] add support for nested "LeafNodes" (i.e., an `italic` tag tag withing a `bold` one or viceversa) -
+- [ ] Add support for nested inline elements
+
+- [ ] Add support for nested "LeafNodes" (i.e., an `italic` tag withing a `bold` one or viceversa) -
     - recursive?
     - 1/2 level(s) deep?
 
-- [ ] Fix: the delimiters order inside of ALLOWED_DELIMITERS matters to the way that inline elements are split into nodes and their type.
-    - This needs a rework, especially in the future to allow nested blocks no matter the order
+- [ ] Fix: the delimiters order inside ALLOWED_DELIMITERS matters to the way that inline elements are split into nodes and their type.
+  - This needs a rework, especially in the future to allow nested blocks no matter the order
 
 - [ ] Update the docs to specify in detail what types are supported, which are currently not supported and so on
+
+- [ ] Add a mkdocs section for reference
+    
+- [ ] Add support for Text splits for other types than TextType.TEXT.
+
+- [ ] Use pydantic for class definition
 
 - [ ] Add a mkdocs section for reference
