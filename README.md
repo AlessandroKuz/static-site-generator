@@ -22,6 +22,7 @@ To run the tests make sure you have python installed, then, on Linux and MacOS, 
 ## Future Roadmap
 
 - [ ] Add support for self-closing tags (i.e., `img`, `hr`)
+    - Rework `img`
 
 [//]: # (    <area> - Specifies clickable areas in image maps)
 
@@ -51,7 +52,14 @@ To run the tests make sure you have python installed, then, on Linux and MacOS, 
 
 [//]: # (    <wbr> - Suggests potential line break points)
 
-- [ ] Add support for nested inline elements
+- [ ] Add support for nested elements
+    - [ ] nested inline elements
+    - [ ] nested block elements
+        - for example blockquote within blockquote
+
+[//]: # (- [ ] Add support for tabbed text to become a quote?)
+
+[//]: # (- [ ] Switch from `<b>` and `<i>` tags to `<strong>` and `<em>`?)
 
 - [ ] Add support for nested "LeafNodes" (i.e., an `italic` tag withing a `bold` one or viceversa) -
     - recursive?
