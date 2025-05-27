@@ -6,7 +6,7 @@ from inline_markdown import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
-    text_to_text_nodes
+    text_to_text_nodes,
 )
 from textnode import TextNode, TextType
 
@@ -19,9 +19,9 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         self.assertEqual(new_nodes, expecting_nodes)
 
         my_node = TextNode("This is text with a ```code block``` word", TextType.TEXT)
-        new_nodes = split_nodes_delimiter([my_node], "```", TextType.CODE)
-        expecting_nodes = [TextNode("This is text with a ", TextType.TEXT), TextNode("code block", TextType.CODE), TextNode(" word", TextType.TEXT)]
-        self.assertEqual(new_nodes, expecting_nodes)
+        with self.assertRaises(ValueError) as context:
+            split_nodes_delimiter([my_node], "```", TextType.CODE)
+        self.assertEqual(str(context.exception), 'provided delimiter "```" is not supported.')
 
     def test_simple_italic_block(self):
         my_node = TextNode("This is text with an _italic block_ word", TextType.TEXT)
@@ -37,6 +37,11 @@ class TestSplitNodesDelimiter(unittest.TestCase):
     def test_simple_bold_block(self):
         my_node = TextNode("This is text with a **bold block** word", TextType.TEXT)
         new_nodes = split_nodes_delimiter([my_node], "**", TextType.BOLD)
+        expecting_nodes = [TextNode("This is text with a ", TextType.TEXT), TextNode("bold block", TextType.BOLD), TextNode(" word", TextType.TEXT)]
+        self.assertEqual(new_nodes, expecting_nodes)
+
+        my_node = TextNode("This is text with a __bold block__ word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([my_node], "__", TextType.BOLD)
         expecting_nodes = [TextNode("This is text with a ", TextType.TEXT), TextNode("bold block", TextType.BOLD), TextNode(" word", TextType.TEXT)]
         self.assertEqual(new_nodes, expecting_nodes)
 

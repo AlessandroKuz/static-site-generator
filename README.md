@@ -57,13 +57,14 @@ To run the tests make sure you have python installed, then, on Linux and MacOS, 
     - recursive?
     - 1/2 level(s) deep?
 
-- [ ] Fix: the delimiters order inside ALLOWED_DELIMITERS matters to the way that inline elements are split into nodes and their type.
-  - This needs a rework, especially in the future to allow nested blocks no matter the order
+- [ ] Fix: the delimiters order inside ALLOWED_INLINE_DELIMITERS matters to the way that inline elements are split into
+  nodes and their type.
+    - This needs a rework, especially in the future to allow nested blocks no matter the order
 
 - [ ] Update the docs to specify in detail what types are supported, which are currently not supported and so on
 
 - [ ] Add a mkdocs section for reference
-    
+
 - [ ] Add support for Text splits for other types than TextType.TEXT.
 
 - [ ] Use pydantic for class definition

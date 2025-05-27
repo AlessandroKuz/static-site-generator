@@ -2,8 +2,13 @@ import re
 
 from textnode import TextNode, TextType
 
-
-ALLOWED_DELIMITERS = {'**': TextType.BOLD, '*': TextType.ITALIC, '_': TextType.ITALIC, '```': TextType.CODE, '`': TextType.CODE}
+ALLOWED_INLINE_DELIMITERS = {
+    '**': TextType.BOLD,
+    '__': TextType.BOLD,
+    '*': TextType.ITALIC,
+    '_': TextType.ITALIC,
+    '`': TextType.CODE
+}
 
 def split_nodes_delimiter(old_nodes: list, delimiter: str, text_type: TextType) -> list[TextNode | None]:
     """
@@ -17,7 +22,7 @@ def split_nodes_delimiter(old_nodes: list, delimiter: str, text_type: TextType) 
     """
     new_nodes = []
 
-    if delimiter not in ALLOWED_DELIMITERS.keys():
+    if delimiter not in ALLOWED_INLINE_DELIMITERS.keys():
         raise ValueError(f'provided delimiter "{delimiter}" is not supported.')
 
     for old_node in old_nodes:
@@ -119,7 +124,7 @@ def text_to_text_nodes(text: str) -> list[TextNode]:
     if links_are_present:
         nodes = split_nodes_link(nodes)
     
-    for delimiter, text_type in ALLOWED_DELIMITERS.items():
+    for delimiter, text_type in ALLOWED_INLINE_DELIMITERS.items():
         nodes = split_nodes_delimiter(nodes, delimiter, text_type)
     
     return nodes
