@@ -2,22 +2,68 @@
 
 The following is a project that enables the user to convert Markdown documents into a html website.
 
-The project is developed in python following
-the [related boot.dev course](https://www.boot.dev/courses/build-static-site-generator-python).
+For a demo check the `deploy` branch [here](https://github.com/AlessandroKuz/static-site-generator/tree/deploy), or
+visit directly the [generated website](http://alessandrokuz.info/static-site-generator/), made from the following
+[Markdown documents](https://github.com/AlessandroKuz/static-site-generator/tree/deploy/content).
+
+The project is developed in `Python` following the
+[related boot.dev course](https://www.boot.dev/courses/build-static-site-generator-python).
+
+## Table of Contents
+
+1. [Execution](#execution)
+2. [Tests](#tests)
+3. [Build](#build)
+4. [How to Use](#how-to-use)
+5. [Future Roadmap](#future-roadmap)
 
 ## Execution
 
-To run the program execute `main.py`.
+To run the program execute `./main.sh`.
 
 ## Tests
 
 To run the tests make sure you have python installed, then, on Linux and MacOS, run `./test.sh`.
 
+## Build
+
+On the deployment branch you can also execute `./build.sh` to build the HTML files, using the repo URL.
+
+## How to Use
+
+1. Git clone the repo with the following command:
+
+    ```shell
+    git clone https://github.com/AlessandroKuz/static-site-generator.git
+    ```
+
+2. Go inside the cloned repository
+
+    ```shell
+    cd static-site-generator
+    ```
+
+3. Copy your markdown files into `content`
+4. Run the program
+    - On windows:
+    ```powershell
+    python src\main.py
+    cd public  # or "cd docs" if on deploy branch
+    python3 -m http.server 8888
+    ```
+    - On Linux, MacOS & WSL
+    ```shell
+    ./main.sh
+    ```
+5. Your out will be in `public/` if your on the `main` branch or in `docs/` if you're on the `deplay` branch.
+
+That's it! You can customize the look of the website by changing `template.html` and the files inside of `static/`.
+
 ## Markdown reference
 
 - [Simple Markdown Guide](https://www.markdownguide.org/cheat-sheet/)
 - [Basic Syntax and best practices](https://www.markdownguide.org/basic-syntax/)
-- [Markdown book](https://www.markdownguide.org/book/)j
+- [Markdown book](https://www.markdownguide.org/book/)
 
 ## Future Roadmap
 
@@ -78,3 +124,5 @@ To run the tests make sure you have python installed, then, on Linux and MacOS, 
 - [ ] Use pydantic for class definition
 
 - [ ] Add a mkdocs section for reference
+
+- [ ] Simplify the usage of the program to make the convertion easier
