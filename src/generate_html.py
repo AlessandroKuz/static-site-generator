@@ -7,12 +7,14 @@ from process_markdown import extract_title
 def generate_page(
         from_path: pathlib.Path | str,
         template_path: pathlib.Path | str,
-        dest_path: pathlib.Path | str) -> None:
+        dest_path: pathlib.Path | str,
+        basepath: str) -> None:
     """
     Generates an HTML page from a Markdown file.
     :param from_path: the path to the Markdown file to extract the content from.
     :param template_path: the path to the HTML template to use.
     :param dest_path: the path to the output HTML file.
+    :param basepath: the root path of the site to be used.
 
     :return: None
     """
@@ -73,6 +75,9 @@ def generate_page(
     template = template.replace('{{ Title }}', title)
     template = template.replace('{{ Content }}', html)
 
+    template = template.replace('href="/', f'href="/{basepath}')
+    template = template.replace('src="/', f'src="/{basepath}')
+
     with open(dest_path, 'w') as html_file:
         html_file.write(template)
 
@@ -81,12 +86,14 @@ def generate_page(
 def generate_pages_recursive(
         dir_path_content: pathlib.Path | str,
         template_path: pathlib.Path | str,
-        dest_dir_path: pathlib.Path | str) -> None:
+        dest_dir_path: pathlib.Path | str,
+        basepath: str) -> None:
     """
 
     :param dir_path_content: the path of the directory containing the Markdown files.
     :param template_path: the path to the HTML template to use.
     :param dest_dir_path: the path to the output HTML files.
+    :param basepath: the root path of the site to be used.
 
     :return: None
     """
@@ -130,9 +137,9 @@ def generate_pages_recursive(
     for item in dir_path_content.iterdir():
         if item.is_file():
             dest_path = f"{dest_dir_path}/{item.stem}{template_path.suffix}"
-            generate_page(item, template_path, dest_path)
+            generate_page(item, template_path, dest_path, basepath)
         else:
             new_dest_dir_path = dest_dir_path / item.name
-            generate_pages_recursive(item, template_path, new_dest_dir_path)
+            generate_pages_recursive(item, template_path, new_dest_dir_path, basepath)
 
     print(f"All pages generated successfully to {dest_dir_path.resolve()}!")

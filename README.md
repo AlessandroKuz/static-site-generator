@@ -78,3 +78,5 @@ To run the tests make sure you have python installed, then, on Linux and MacOS, 
 - [ ] Use pydantic for class definition
 
 - [ ] Add a mkdocs section for reference
+
+- [ ] Instead of reading it each time, load the contents of the template just once, and pass it as an argument
